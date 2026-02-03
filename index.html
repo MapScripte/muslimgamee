@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Blue Edition</title>
+    <style>
+        :root {
+            --bg-deep: #0f172a; /* Қою көк */
+            --primary-blue: #3b82f6; /* Неон көк */
+            --light-blue: #0ea5e9; /* Ашық көк */
+            --success: #22c55e;
+            --danger: #ef4444;
+            --white: #f8fafc;
+            --btn-dark: #1e293b;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            touch-action: manipulation;
+            color: var(--white);
+        }
+        #app {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(15, 23, 42, 0.8);
+            border-left: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+        .screen { display: none; flex-grow: 1; }
+        .active { display: flex; flex-direction: column; }
+        
+        h2 { color: var(--light-blue); text-shadow: 0 0 10px rgba(14, 165, 233, 0.5); margin-top: 20px; }
+        h3 { color: var(--white); font-size: 18px; }
+
+        /* Батырмалар */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .num-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        
+        button {
+            padding: 16px 5px;
+            font-size: 17px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+        }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+        
+        .btn-main { background: var(--primary-blue); color: white; }
+        .btn-num { background: var(--btn-dark); color: var(--light-blue); border: 1px solid var(--primary-blue); }
+        .btn-mix { background: #0284c7; color: white; grid-column: span 3; }
+        .btn-back { background: #475569; color: white; margin-top: 20px; width: 100%; }
+
+        /* Ойын экраны */
+        #question { font-size: 65px; margin: 20px 0; color: var(--white); font-weight: 800; }
+        #display {
+            font-size: 45px;
+            background: #020617;
+            color: var(--light-blue);
+            border: 2px solid var(--primary-blue);
+            border-radius: 15px;
+            height: 75px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Калькулятор */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: auto;
+            padding-bottom: 15px;
+        }
+        .key {
+            background: #1e293b;
+            color: var(--white);
+            font-size: 28px;
+            padding: 18px;
+            border-bottom: 4px solid #0f172a;
+        }
+        .key:active { background: var(--primary-blue); }
+        .key-del { background: #334155; color: #fda4af; }
+        .key-enter { background: var(--primary-blue); color: white; grid-column: span 2; }
+
+        #feedback { font-size: 22px; font-weight: bold; height: 35px; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div id="home" class="screen active">
+        <h2>MATH BLUE BOT</h2>
+        <div class="grid">
+            <button class="btn-main" onclick="start('add', 0)">ҚОСУ (+)</button>
+            <button class="btn-main" onclick="start('sub', 0)">АЗАЙТУ (-)</button>
+            <button class="btn-main" onclick="openMenu('mul-menu')">КӨБЕЙТУ (×)</button>
+            <button class="btn-main" onclick="openMenu('div-menu')">БӨЛУ (÷)</button>
+        </div>
+    </div>
+
+    <div id="mul-menu" class="screen">
+        <h3>Көбейту кестесі</h3>
+        <div class="num-grid" id="mul-list"></div>
+        <button class="btn-back" onclick="openMenu('home')">Артқа</button>
+    </div>
+
+    <div id="div-menu" class="screen">
+        <h3>Бөлу тапсырмалары</h3>
+        <div class="num-grid" id="div-list"></div>
+        <button class="btn-back" onclick="openMenu('home')">Артқа</button>
+    </div>
+
+    <div id="game" class="screen">
+        <div id="question"></div>
+        <div id="display"></div>
+        <div id="feedback"></div>
+        
+        <div class="keypad">
+            <button class="key" onclick="press(1)">1</button>
+            <button class="key" onclick="press(2)">2</button>
+            <button class="key" onclick="press(3)">3</button>
+            <button class="key" onclick="press(4)">4</button>
+            <button class="key" onclick="press(5)">5</button>
+            <button class="key" onclick="press(6)">6</button>
+            <button class="key" onclick="press(7)">7</button>
+            <button class="key" onclick="press(8)">8</button>
+            <button class="key" onclick="press(9)">9</button>
+            <button class="key" onclick="press(0)">0</button>
+            <button class="key key-del" onclick="press('del')">⌫</button>
+            <button class="key key-enter" onclick="check()">ЖАУАП БЕРУ</button>
+        </div>
+        <button class="btn-back" onclick="openMenu('home')">Мәзірге шығу</button>
+    </div>
+</div>
+
+<script>
+    let currentMode = '';
+    let selectedNum = 0;
+    let correctAnswer = 0;
+    let usedQuestions = new Set();
+    let userInput = "";
+
+    const mList = document.getElementById('mul-list');
+    const dList = document.getElementById('div-list');
+    for(let i=1; i<=9; i++) {
+        mList.innerHTML += `<button class="btn-num" onclick="start('mul', ${i})">${i}</button>`;
+        dList.innerHTML += `<button class="btn-num" onclick="start('div', ${i})">${i}</button>`;
+    }
+    mList.innerHTML += `<button class="btn-mix" onclick="start('mul', 0)">КЕЗДЕЙСОҚ КЕСТЕ</button>`;
+    dList.innerHTML += `<button class="btn-mix" onclick="start('div', 0)">КЕЗДЕЙСОҚ БӨЛУ</button>`;
+
+    function openMenu(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function start(mode, num) {
+        currentMode = mode;
+        selectedNum = num;
+        usedQuestions.clear();
+        userInput = "";
+        openMenu('game');
+        nextQuestion();
+    }
+
+    function press(num) {
+        if (num === 'del') userInput = userInput.slice(0, -1);
+        else if (userInput.length < 3) userInput += num;
+        document.getElementById('display').innerText = userInput;
+    }
+
+    function playSound(isOk) {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = 'sine'; 
+        osc.frequency.setValueAtTime(isOk ? 660 : 220, audioCtx.currentTime);
+        if(isOk) osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+    }
+
+    function nextQuestion() {
+        let n1, n2, txt;
+        let found = false;
+        let limit = 0;
+
+        while (!found && limit < 150) {
+            if (currentMode === 'add') {
+                n1 = Math.floor(Math.random() * 90) + 1;
+                n2 = Math.floor(Math.random() * (100 - n1));
+                correctAnswer = n1 + n2; txt = `${n1} + ${n2}`;
+            } 
+            else if (currentMode === 'sub') {
+                n1 = Math.floor(Math.random() * 99) + 1;
+                n2 = Math.floor(Math.random() * n1);
+                correctAnswer = n1 - n2; txt = `${n1} - ${n2}`;
+            }
+            else if (currentMode === 'mul') {
+                n1 = (selectedNum === 0) ? Math.floor(Math.random() * 9) + 1 : selectedNum;
+                n2 = Math.floor(Math.random() * 9) + 1;
+                correctAnswer = n1 * n2; txt = `${n1} × ${n2}`;
+            }
+            else if (currentMode === 'div') {
+                n2 = (selectedNum === 0) ? Math.floor(Math.random() * 9) + 1 : selectedNum;
+                correctAnswer = Math.floor(Math.random() * 9) + 1;
+                n1 = n2 * correctAnswer;
+                txt = `${n1} ÷ ${n2}`;
+            }
+            if (!usedQuestions.has(txt)) { usedQuestions.add(txt); found = true; }
+            limit++;
+        }
+        if (limit >= 150) usedQuestions.clear();
+        document.getElementById('question').innerText = txt;
+        userInput = "";
+        document.getElementById('display').innerText = "";
+        document.getElementById('feedback').innerText = "";
+    }
+
+    function check() {
+        if (userInput === "") return;
+        const val = parseInt(userInput);
+        const fb = document.getElementById('feedback');
+
+        if (val === correctAnswer) {
+            fb.innerText = "ӨТЕ ЖАҚСЫ! 🔥";
+            fb.style.color = "var(--success)";
+            playSound(true);
+            setTimeout(nextQuestion, 1000);
+        } else {
+            fb.innerText = "ҚАТЕ! ҚАЙТАЛА ⚠️";
+            fb.style.color = "var(--danger)";
+            playSound(false);
+            userInput = "";
+            document.getElementById('display').innerText = "";
+        }
+    }
+</script>
+
+</body>
+</html>
